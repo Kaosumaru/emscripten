@@ -3367,6 +3367,9 @@ LibraryManager.library = {
     }
     if (flags & {{{ cDefine('AI_ADDRCONFIG') }}}) {
       // TODO
+#if ASSERTIONS
+      Module.printErr('TODO: AI_ADDRCONFIG is not currently supported');
+#endif
       return {{{ cDefine('EAI_NONAME') }}};
     }
     if (type !== 0 && type !== {{{ cDefine('SOCK_STREAM') }}} && type !== {{{ cDefine('SOCK_DGRAM') }}}) {
