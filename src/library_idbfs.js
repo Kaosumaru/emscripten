@@ -112,14 +112,18 @@ mergeInto(LibraryManager.library, {
       IDBFS.getDB(mount.mountpoint, function(err, db) {
         if (err) return callback(err);
 
-        var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
-        transaction.onerror = function(e) {
-          callback(this.error);
-          e.preventDefault();
-        };
+        try {
+          var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readonly');
+          transaction.onerror = function(e) {
+            callback(this.error);
+            e.preventDefault();
+          };
 
-        var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
-        var index = store.index('timestamp');
+          var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+          var index = store.index('timestamp');
+        } catch(e) {
+          return callback(e);
+        }
 
         index.openKeyCursor().onsuccess = function(event) {
           var cursor = event.target.result;
@@ -244,8 +248,13 @@ mergeInto(LibraryManager.library, {
       var errored = false;
       var completed = 0;
       var db = src.type === 'remote' ? src.db : dst.db;
-      var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readwrite');
-      var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+
+      try {
+        var transaction = db.transaction([IDBFS.DB_STORE_NAME], 'readwrite');
+        var store = transaction.objectStore(IDBFS.DB_STORE_NAME);
+      } catch(e) {
+        return callback(e);
+      }
 
       function done(err) {
         if (err) {
